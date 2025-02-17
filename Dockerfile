@@ -43,6 +43,32 @@
 
 # Dockerfile for React App with Multi-Stage Build and Nginx(50MB)
 # Build Stage
+# FROM node:18-slim AS build
+# # Set working directory
+# WORKDIR /app
+# # Copy package.json and package-lock.json
+# COPY package*.json ./
+# # Install dependencies
+# RUN npm install --only=production
+# # Copy the rest of the application
+# COPY . .
+# # Build the application
+# RUN npm run build
+# # Production Stage
+# FROM nginx:alpine AS production
+# # Set working directory to Nginx web root
+# WORKDIR /usr/share/nginx/html
+# # Remove default Nginx static files
+# RUN rm -rf ./*
+# # Copy built application from build stage
+# COPY --from=build /app/build ./
+# # Expose port 80
+# EXPOSE 80
+# # Use Nginx as the entry point
+# ENTRYPOINT ["nginx", "-g", "daemon off;"]
+
+# Dockerfile for React App with Multi-Stage Build and Nginx.conf file(50MB)
+# Build Stage
 FROM node:18-slim AS build
 
 # Set working directory
@@ -72,8 +98,12 @@ RUN rm -rf ./*
 # Copy built application from build stage
 COPY --from=build /app/build ./
 
+# Copy custom Nginx configuration
+COPY nginx.conf /etc/nginx/nginx.conf
+
 # Expose port 80
 EXPOSE 80
 
 # Use Nginx as the entry point
 ENTRYPOINT ["nginx", "-g", "daemon off;"]
+
